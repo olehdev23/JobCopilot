@@ -41,7 +41,6 @@ public class ProfileServiceImpl implements ProfileService {
         ConversationState state = user.getConversationState();
         long chatId = user.getChatId();
 
-        // Using a switch statement is a clean way to handle different states
         return switch (state) {
             case AWAITING_CV -> handleCvUpload(user, message);
             case AWAITING_PREFERENCES -> handlePreferencesInput(user, message);
@@ -66,7 +65,6 @@ public class ProfileServiceImpl implements ProfileService {
             String parsedCvText = fileParserService.parse(cvDocument);
             user.setCv(parsedCvText);
 
-            // Move to the next state
             user.setConversationState(ConversationState.AWAITING_PREFERENCES);
             userRepository.save(user);
             log.info("User {} state changed to {}", chatId, user.getConversationState());
@@ -81,10 +79,6 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
-    /**
-     * A simple stub to test the AWAITING_PREFERENCES state transition.
-     * It just changes the state back to IDLE.
-     */
     private SendMessage handlePreferencesInput(User user, Message message) {
         if (!message.hasText()) {
             return new SendMessage(String.valueOf(user.getChatId()), "Please provide your preferences as a text message.");
@@ -98,7 +92,7 @@ public class ProfileServiceImpl implements ProfileService {
         userRepository.save(user);
 
         log.info("User {} state changed to IDLE. Profile setup finished.", user.getChatId());
-        String responseText = "OK, preferences step passed. Profile setup is complete. Your state is now IDLE.";
+        String responseText = "Excellent! Your profile is complete. Now you can send me the full text of any job description, and I'll provide a personalized analysis of how well you match, based on your resume and preferences.";
         return new SendMessage(String.valueOf(user.getChatId()), responseText);
     }
 }
