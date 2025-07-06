@@ -10,9 +10,11 @@ import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsume
 import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -22,6 +24,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -42,6 +46,16 @@ public class MyTelegramBot implements SpringLongPollingBot, LongPollingSingleThr
         this.updateDispatcher = updateDispatcher;
         this.telegramClient = new OkHttpTelegramClient(botToken);
         this.registrationService = registrationService;
+        try {
+            List<BotCommand> commands = new ArrayList<>();
+            commands.add(new BotCommand("start", "Start / reload bot"));
+            commands.add(new BotCommand("prepare_application", "Get Cover Letter & Interview Tips"));
+
+            this.telegramClient.execute(new SetMyCommands(commands));
+            log.info("Menu was successfully set.");
+        } catch (TelegramApiException e) {
+            log.error("Exception with menu set: {}", e.getMessage());
+        }
     }
 
     @Override
