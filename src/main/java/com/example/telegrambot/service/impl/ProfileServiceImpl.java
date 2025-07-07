@@ -92,7 +92,10 @@ public class ProfileServiceImpl implements ProfileService {
         userRepository.save(user);
 
         log.info("User {} state changed to IDLE. Profile setup finished.", user.getChatId());
-        String responseText = "Excellent! Your profile is complete. Now you can send me the full text of any job description, and I'll provide a personalized analysis of how well you match, based on your resume and preferences.";
+        String responseText = "Excellent! Your profile is now complete. \n\n" +
+                "You can now use the /prepare_application command. " +
+                "Send it to me, and I will prompt you for a job vacancy. " +
+                "Then, I will generate a tailored cover letter and provide you with interview preparation tips based on your profile.";
         return new SendMessage(String.valueOf(user.getChatId()), responseText);
     }
 }
