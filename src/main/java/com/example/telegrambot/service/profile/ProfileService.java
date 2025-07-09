@@ -1,4 +1,4 @@
-package com.example.telegrambot.service;
+package com.example.telegrambot.service.profile;
 
 import com.example.telegrambot.model.User;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

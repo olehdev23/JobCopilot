@@ -1,16 +1,13 @@
-package com.example.telegrambot.service.impl;
+package com.example.telegrambot.service.profile;
 
-import com.example.telegrambot.bot.MyTelegramBot;
 import com.example.telegrambot.model.ConversationState;
 import com.example.telegrambot.model.User;
 import com.example.telegrambot.repository.UserRepository;
-import com.example.telegrambot.service.FileParserService;
-import com.example.telegrambot.service.ProfileService;
+import com.example.telegrambot.service.file.FileParserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Document;
-import org.telegram.telegrambots.meta.api.objects.chat.Chat;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 
 @Slf4j

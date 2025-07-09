@@ -1,4 +1,4 @@
-package com.example.telegrambot.service;
+package com.example.telegrambot.service.analysis;
 
 import com.example.telegrambot.model.User;
 

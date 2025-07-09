@@ -1,7 +1,7 @@
 package com.example.telegrambot.bot;
 
-import com.example.telegrambot.service.RegistrationService;
-import com.example.telegrambot.service.UpdateDispatcher;
+import com.example.telegrambot.service.registration.RegistrationService;
+import com.example.telegrambot.service.dispatcher.UpdateDispatcher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
