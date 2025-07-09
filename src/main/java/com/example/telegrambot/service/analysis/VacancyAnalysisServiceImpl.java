@@ -1,7 +1,6 @@
-package com.example.telegrambot.service.impl;
+package com.example.telegrambot.service.analysis;
 
 import com.example.telegrambot.model.User;
-import com.example.telegrambot.service.VacancyAnalysisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;

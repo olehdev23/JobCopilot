@@ -1,19 +1,17 @@
-package com.example.telegrambot.service.impl;
+package com.example.telegrambot.service.dispatcher;
 
 import com.example.telegrambot.bot.MessageSender;
+import com.example.telegrambot.dto.AnalysisTask;
 import com.example.telegrambot.model.ConversationState;
 import com.example.telegrambot.model.User;
 import com.example.telegrambot.repository.UserRepository;
-import com.example.telegrambot.service.ProfileService;
-import com.example.telegrambot.service.UpdateDispatcher;
-import com.example.telegrambot.service.VacancyAnalysisService;
+import com.example.telegrambot.service.kafka.KafkaProducerService;
+import com.example.telegrambot.service.profile.ProfileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -22,15 +20,16 @@ public class UpdateDispatcherImpl implements UpdateDispatcher {
     private final ProfileService profileService;
     private final UserRepository userRepository;
     private final MessageSender messageSender;
-    private final VacancyAnalysisService vacancyAnalysisService;
+    private final KafkaProducerService kafkaProducerService;
 
     public UpdateDispatcherImpl(
             ProfileService profileService,
-            UserRepository userRepository, @Lazy MessageSender messageSender, VacancyAnalysisService vacancyAnalysisService) {
+            UserRepository userRepository, @Lazy MessageSender messageSender,
+            KafkaProducerService kafkaProducerService) {
         this.profileService = profileService;
         this.userRepository = userRepository;
         this.messageSender = messageSender;
-        this.vacancyAnalysisService = vacancyAnalysisService;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     @Override
@@ -42,7 +41,6 @@ public class UpdateDispatcherImpl implements UpdateDispatcher {
                 messageSender.send(response);
             }
         }, () -> {
-            // Обробка незареєстрованого користувача
             messageSender.send(new SendMessage(String.valueOf(chatId), "Welcome! Please type /start to begin."));
         });
     }
@@ -58,14 +56,13 @@ public class UpdateDispatcherImpl implements UpdateDispatcher {
             case AWAITING_VACANCY:
                 if (message.hasText()) {
                     String vacancyText = message.getText();
-                    messageSender.send(new SendMessage(String.valueOf(chatId), "Received. Analyzing... 🤖"));
-
-                    String analysisResult = vacancyAnalysisService.analyze(user, vacancyText);
+                    AnalysisTask task = new AnalysisTask(chatId, vacancyText);
+                    kafkaProducerService.sendAnalysisTask(task);
 
                     user.setConversationState(ConversationState.IDLE);
                     userRepository.save(user);
 
-                    return new SendMessage(String.valueOf(chatId), analysisResult);
+                    return new SendMessage(String.valueOf(chatId), "Received. Analyzing... 🤖");
                 } else {
                     return new SendMessage(String.valueOf(chatId), "Please send me your vacancy description");
                 }
@@ -85,15 +82,5 @@ public class UpdateDispatcherImpl implements UpdateDispatcher {
         }
         log.warn("Reached an unexpected point in processUserState for state: {}", state);
         return new SendMessage(String.valueOf(chatId), "Sorry, an unexpected error occurred.");
-    }
-
-    /**
-     * A simple helper method to send a plain text message.
-     * @param chatId The ID of the chat to send the message to.
-     * @param text   The text of the message.
-     */
-    private void sendTextMessage(long chatId, String text) {
-        SendMessage message = new SendMessage(String.valueOf(chatId), text);
-        messageSender.send(message);
     }
 }

@@ -1,7 +1,6 @@
-package com.example.telegrambot.service.impl;
+package com.example.telegrambot.service.file;
 
 import com.example.telegrambot.bot.FileDownloaderService;
-import com.example.telegrambot.service.FileParserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
