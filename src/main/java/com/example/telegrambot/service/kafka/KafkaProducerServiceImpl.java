@@ -14,7 +14,8 @@ public class KafkaProducerServiceImpl implements KafkaProducerService {
     private final String analysisTaskTopic;
 
     public KafkaProducerServiceImpl(KafkaTemplate<String, AnalysisTask> kafkaTemplate,
-                                    @Value("${app.kafka.topic.analysis-tasks}") String analysisTaskTopic) {
+                                    @Value("${app.kafka.topic.analysis-tasks}")
+                                    String analysisTaskTopic) {
         this.kafkaTemplate = kafkaTemplate;
         this.analysisTaskTopic = analysisTaskTopic;
     }

@@ -1,7 +1,12 @@
 package com.example.telegrambot.bot;
 
-import com.example.telegrambot.service.registration.RegistrationService;
 import com.example.telegrambot.service.dispatcher.UpdateDispatcher;
+import com.example.telegrambot.service.registration.RegistrationService;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,16 +26,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
 @Component
-public class MyTelegramBot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer, MessageSender, FileDownloaderService {
-
+public class MyTelegramBot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer,
+        MessageSender, FileDownloaderService {
     private final String botToken;
     private final TelegramClient telegramClient;
     private final UpdateDispatcher updateDispatcher;
@@ -38,10 +37,11 @@ public class MyTelegramBot implements SpringLongPollingBot, LongPollingSingleThr
 
     /**
      * Constructor for dependency injection.
-     * @param botToken            The bot's token, injected from application properties.
+     *
+     * @param botToken The bot's token, injected from application properties.
      */
-    public MyTelegramBot(@Value("${telegram.bot.token}") String botToken,
-                         UpdateDispatcher updateDispatcher, RegistrationService registrationService) {
+    public MyTelegramBot(@Value("${telegram.bot.token}") String botToken, UpdateDispatcher
+            updateDispatcher, RegistrationService registrationService) {
         this.botToken = botToken;
         this.updateDispatcher = updateDispatcher;
         this.telegramClient = new OkHttpTelegramClient(botToken);
@@ -49,7 +49,8 @@ public class MyTelegramBot implements SpringLongPollingBot, LongPollingSingleThr
         try {
             List<BotCommand> commands = new ArrayList<>();
             commands.add(new BotCommand("start", "Start / reload bot"));
-            commands.add(new BotCommand("prepare_application", "Get Cover Letter & Interview Tips"));
+            commands.add(new BotCommand("prepare_application",
+                    "Get Cover Letter & Interview Tips"));
 
             this.telegramClient.execute(new SetMyCommands(commands));
             log.info("Menu was successfully set.");
@@ -69,7 +70,8 @@ public class MyTelegramBot implements SpringLongPollingBot, LongPollingSingleThr
     }
 
     /**
-     * Consumes a single update from Telegram. This is the main entry point for all user interactions.
+     * Consumes a single update from Telegram. This is the main entry point
+     * for all user interactions.
      * @param update The update received from Telegram.
      */
 
@@ -79,35 +81,35 @@ public class MyTelegramBot implements SpringLongPollingBot, LongPollingSingleThr
             log.warn("Received an update without a message");
         }
 
-            Message message = update.getMessage();
-            String messageText = message.getText();
-            long chatId = message.getChatId();
+        Message message = update.getMessage();
+        String messageText = message.getText();
+        long chatId = message.getChatId();
 
-            log.info("Received message: \"{}\" from chat ID: {}", messageText, chatId);
-            if ("/start".equals(messageText)) {
-                registrationService.registerUser(message);
-                sendMainMenu(chatId, message.getChat().getFirstName());
-            } else {
-                updateDispatcher.dispatch(message);
-            }
+        log.info("Received message: \"{}\" from chat ID: {}", messageText, chatId);
+        if ("/start".equals(messageText)) {
+            registrationService.registerUser(message);
+            sendMainMenu(chatId, message.getChat().getFirstName());
+        } else {
+            updateDispatcher.dispatch(message);
         }
+    }
 
     /**
      * Sends the main menu with a "Setup Profile" button.
+     *
      * @param chatId   The ID of the chat to send the message to.
      * @param userName The user's first name for a personalized greeting.
      */
     private void sendMainMenu(long chatId, String userName) {
-        String responseText = "Hello, " + userName + "! I've registered you.\n\n"
+        String responseText = "Hello, " + userName
+                + "! I've registered you.\n\n"
                 + "Let's set up your profile so I can provide the best assistance.";
 
         SendMessage message = new SendMessage(String.valueOf(chatId), responseText);
 
-        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder()
-                .keyboardRow(new KeyboardRow("Setup Profile")) // Створюємо один ряд з однією кнопкою
-                .resizeKeyboard(true)
-                .oneTimeKeyboard(true)
-                .build();
+        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder().keyboardRow(
+                new KeyboardRow("Setup Profile"))
+                .resizeKeyboard(true).oneTimeKeyboard(true).build();
 
         message.setReplyMarkup(keyboardMarkup);
 
@@ -116,6 +118,7 @@ public class MyTelegramBot implements SpringLongPollingBot, LongPollingSingleThr
 
     /**
      * A unified method for sending messages to avoid duplicating the try-catch block.
+     *
      * @param message The SendMessage object to be sent.
      */
     @Override
@@ -124,7 +127,8 @@ public class MyTelegramBot implements SpringLongPollingBot, LongPollingSingleThr
             telegramClient.execute(message);
             log.info("Sent message to chat ID: {}", message.getChatId());
         } catch (TelegramApiException e) {
-            log.error("Failed to send message to chat ID: {}. Error: {}", message.getChatId(), e.getMessage());
+            log.error("Failed to send message to chat ID: {}. Error: {}",
+                    message.getChatId(), e.getMessage());
         }
     }
 

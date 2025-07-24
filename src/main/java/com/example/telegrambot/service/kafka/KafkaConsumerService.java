@@ -18,13 +18,15 @@ public class KafkaConsumerService {
     private final MessageSender messageSender;
     private final UserRepository userRepository;
 
-    public KafkaConsumerService(VacancyAnalysisService vacancyAnalysisService, MessageSender messageSender, UserRepository userRepository) {
+    public KafkaConsumerService(VacancyAnalysisService vacancyAnalysisService,
+                                MessageSender messageSender, UserRepository userRepository) {
         this.vacancyAnalysisService = vacancyAnalysisService;
         this.messageSender = messageSender;
         this.userRepository = userRepository;
     }
 
-    @KafkaListener(topics = "${app.kafka.topic.analysis-tasks}", groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = "${app.kafka.topic.analysis-tasks}",
+            groupId = "${spring.kafka.consumer.group-id}")
     public void listenAnalysisTasks(AnalysisTask task) {
         log.info("Received task from Kafka: {}", task.chatId());
         try {
@@ -32,7 +34,8 @@ public class KafkaConsumerService {
             String vacancyText = task.vacancyText();
 
             User user = userRepository.findById(chatId)
-                    .orElseThrow(() -> new RuntimeException("User not found for analysis task, chatId: " + chatId));
+                    .orElseThrow(() -> new RuntimeException(
+                            "User not found for analysis task, chatId: " + chatId));
 
             String analysisResult = vacancyAnalysisService.analyze(user, vacancyText);
 
@@ -42,7 +45,8 @@ public class KafkaConsumerService {
         } catch (Exception e) {
             log.error("Failed to process analysis task from Kafka: {}", task, e);
             messageSender.send(new SendMessage(String.valueOf(task.chatId()),
-                    "Sorry, an error occurred while processing your request. Please try again later."));
+                    "Sorry, an error occurred while processing your request. "
+                            + "Please try again later."));
         }
     }
 }
