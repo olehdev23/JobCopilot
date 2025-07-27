@@ -16,7 +16,9 @@ public class VacancyAnalysisServiceImpl implements VacancyAnalysisService {
 
     @Override
     public String analyze(User user, String vacancyText) {
-        String cvText = user.getCv();
+        String cvText = (user.getCv() == null || user.getCv().isBlank())
+                ? "No CV provided by the user."
+                : user.getCv();
 
         String promptText = """
         **Role:** You are "Elena", a professional and empathetic career coach.
@@ -47,12 +49,23 @@ public class VacancyAnalysisServiceImpl implements VacancyAnalysisService {
 
         log.info("Generating a full 'Application Pack' for user: {}", user.getChatId());
 
-        String applicationPack = chatClient.prompt()
-                .user(promptText)
-                .call()
-                .content();
+        String applicationPack;
 
-        log.info("Application Pack generated successfully.");
+        try {
+            applicationPack = chatClient.prompt()
+                    .user(promptText)
+                    .call()
+                    .content();
+
+            if (applicationPack == null) {
+                throw new IllegalStateException("AI returned null or empty content.");
+            }
+            log.info("Application Pack generated successfully.");
+
+        } catch (Exception e) {
+            log.error("AI analysis failed for user: {}", user.getChatId(), e);
+            return "Sorry, an error occurred while analyzing the vacancy. Please try again later.";
+        }
 
         String disclaimer = """
         ---
