@@ -12,16 +12,19 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 public class RegistrationServiceImpl implements RegistrationService {
     private final UserRepository userRepository;
 
-
-
     public RegistrationServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
     public void registerUser(Message message) {
+        if (message == null || message.getChat() == null) {
+            log.warn("Received a message with no chat object. Cannot register user.");
+            return;
+        }
+
         var chatId = message.getChatId();
-        if(userRepository.findById(chatId).isEmpty()) {
+        if (userRepository.findById(chatId).isEmpty()) {
             var chat = message.getChat();
             User user = new User();
 
@@ -32,7 +35,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             user.setConversationState(ConversationState.IDLE);
 
             userRepository.save(user);
-            log.info("user was created");
+            log.info("user was created for chatId: {}", chatId);
         }
     }
 }

@@ -41,7 +41,8 @@ public class UpdateDispatcherImpl implements UpdateDispatcher {
                 messageSender.send(response);
             }
         }, () -> {
-            messageSender.send(new SendMessage(String.valueOf(chatId), "Welcome! Please type /start to begin."));
+            messageSender.send(new SendMessage(String.valueOf(chatId),
+                    "Welcome! Please type /start to begin."));
         });
     }
 
@@ -62,9 +63,11 @@ public class UpdateDispatcherImpl implements UpdateDispatcher {
                     user.setConversationState(ConversationState.IDLE);
                     userRepository.save(user);
 
-                    return new SendMessage(String.valueOf(chatId), "Received. Analyzing... 🤖");
+                    return new SendMessage(String.valueOf(chatId),
+                            "Received. Analyzing... 🤖");
                 } else {
-                    return new SendMessage(String.valueOf(chatId), "Please send me your vacancy description");
+                    return new SendMessage(String.valueOf(chatId),
+                            "Please send me your vacancy description");
                 }
 
             case IDLE:
@@ -73,14 +76,19 @@ public class UpdateDispatcherImpl implements UpdateDispatcher {
                     if ("/prepare_application".equals(text)) {
                         user.setConversationState(ConversationState.AWAITING_VACANCY);
                         userRepository.save(user);
-                        return new SendMessage(String.valueOf(chatId), "Alright, send me your vacancy description.");
+                        return new SendMessage(String.valueOf(chatId),
+                                "Alright, send me your vacancy description.");
                     } else if ("Setup Profile".equals(text)) {
                         return profileService.startProfileSetup(user);
                     }
                 }
-                return new SendMessage(String.valueOf(chatId), "Unknown command. Please use the menu or available commands.");
+                return new SendMessage(String.valueOf(chatId),
+                        "Unknown command. Please use the menu or available commands.");
+            default:
+                log.warn("Reached an unexpected point in processUserState for state: {}", state);
+                return new SendMessage(String.valueOf(chatId),
+                        "Sorry, an unexpected error occurred.");
         }
-        log.warn("Reached an unexpected point in processUserState for state: {}", state);
-        return new SendMessage(String.valueOf(chatId), "Sorry, an unexpected error occurred.");
     }
 }
+

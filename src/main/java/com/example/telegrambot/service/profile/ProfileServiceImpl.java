@@ -28,7 +28,8 @@ public class ProfileServiceImpl implements ProfileService {
         userRepository.save(user);
         log.info("User {} state changed to {}", user.getChatId(), user.getConversationState());
 
-        String responseText = "Great! Let's start with your resume.\n\nPlease send me your CV as a file (.pdf or .docx).";
+        String responseText = "Great! Let's start with your resume."
+                + "\n\nPlease send me your CV as a file (.pdf or .docx).";
 
         return new SendMessage(String.valueOf(user.getChatId()), responseText);
     }
@@ -42,8 +43,11 @@ public class ProfileServiceImpl implements ProfileService {
             case AWAITING_CV -> handleCvUpload(user, message);
             case AWAITING_PREFERENCES -> handlePreferencesInput(user, message);
             default -> {
-                log.warn("processMessage called in an unexpected state: {} for user {}", state, chatId);
-                yield new SendMessage(String.valueOf(chatId), "Sorry, something went wrong. Let's start over by pressing /start.");
+                log.warn(
+                        "processMessage called in an unexpected state: {} for user {}",
+                        state, chatId);
+                yield new SendMessage(String.valueOf(chatId),
+                        "Sorry, something went wrong. Let's start over by pressing /start.");
             }
         };
     }
@@ -52,7 +56,8 @@ public class ProfileServiceImpl implements ProfileService {
         long chatId = user.getChatId();
 
         if (!message.hasDocument()) {
-            return new SendMessage(String.valueOf(chatId), "This step requires a file. Please send your CV as a .pdf or .docx file.");
+            return new SendMessage(String.valueOf(chatId),
+                    "This step requires a file. Please send your CV as a .pdf or .docx file.");
         }
 
         Document cvDocument = message.getDocument();
@@ -71,14 +76,18 @@ public class ProfileServiceImpl implements ProfileService {
             return new SendMessage(String.valueOf(chatId), responseText);
 
         } catch (Exception e) {
-            log.error("Failed to parse file for user {}", chatId, e);
-            return new SendMessage(String.valueOf(chatId), "Sorry, I failed to process your file. Please try another one or contact support.");
+            log.error("Failed to parse file for user {}",
+                    chatId, e);
+            return new SendMessage(String.valueOf(chatId),
+                    "Sorry, I failed to process your file."
+                            + " Please try another one or contact support.");
         }
     }
 
     private SendMessage handlePreferencesInput(User user, Message message) {
         if (!message.hasText()) {
-            return new SendMessage(String.valueOf(user.getChatId()), "Please provide your preferences as a text message.");
+            return new SendMessage(String.valueOf(user.getChatId()),
+                    "Please provide your preferences as a text message.");
         }
 
         log.info("Handling AWAITING_PREFERENCES state for user {}", user.getChatId());
@@ -88,11 +97,13 @@ public class ProfileServiceImpl implements ProfileService {
         user.setPreferences(text);
         userRepository.save(user);
 
-        log.info("User {} state changed to IDLE. Profile setup finished.", user.getChatId());
-        String responseText = "Excellent! Your profile is now complete. \n\n" +
-                "You can now use the /prepare_application command. " +
-                "Send it to me, and I will prompt you for a job vacancy. " +
-                "Then, I will generate a tailored cover letter and provide you with interview preparation tips based on your profile.";
+        log.info("User {} state changed to IDLE. Profile setup finished.",
+                user.getChatId());
+        String responseText = "Excellent! Your profile is now complete. \n\n"
+                + "You can now use the /prepare_application command. "
+                + "Send it to me, and I will prompt you for a job vacancy. "
+                + "Then, I will generate a tailored cover letter and provide "
+                + "you with interview preparation tips based on your profile.";
         return new SendMessage(String.valueOf(user.getChatId()), responseText);
     }
 }

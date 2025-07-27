@@ -1,9 +1,8 @@
 package com.example.telegrambot.service.file;
 
+import java.io.IOException;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.io.IOException;
 
 /**
  * A service responsible for parsing files (like CVs) and extracting text content.

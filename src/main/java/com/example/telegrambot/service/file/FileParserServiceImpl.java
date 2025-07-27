@@ -1,6 +1,10 @@
 package com.example.telegrambot.service.file;
 
 import com.example.telegrambot.bot.FileDownloaderService;
+import jakarta.activation.MimeType;
+import jakarta.activation.MimeTypeParseException;
+import java.io.IOException;
+import java.io.InputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -11,12 +15,13 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import java.io.IOException;
-import java.io.InputStream;
 
 @Slf4j
 @Service
 public class FileParserServiceImpl implements FileParserService {
+    private static final String PDF_MIME_TYPE = "application/pdf";
+    private static final String DOCX_MIME_TYPE =
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     private final FileDownloaderService fileDownloaderService;
 
     public FileParserServiceImpl(@Lazy FileDownloaderService fileDownloaderService) {
@@ -25,22 +30,42 @@ public class FileParserServiceImpl implements FileParserService {
 
     @Override
     public String parse(Document document) throws IOException, TelegramApiException {
-        InputStream inputStream = fileDownloaderService.downloadFile(document.getFileId());
-        try (inputStream) {
-            String mimeType = document.getMimeType();
-            log.info("Parsing file '{}' with MIME type: {}", document.getFileName(), mimeType);
-            if ("application/pdf".equals(mimeType)) {
-                return parsePdf(inputStream);
-            } else if ("application/vnd.openxmlformats-officedocument.wordprocessingml.document".equals(mimeType)) {
-                return parseDocx(inputStream);
-            } else {
-                log.warn("Unsupported file type: {}", mimeType);
-                return "Error: Unsupported file type.";
-            }
-        } catch (IOException e) {
-            log.error("Failed to download or parse file", e);
-            return "Error: Could not process the file.";
+        String baseMimeType = getBaseMimeType(document.getMimeType());
+        log.info("Received file '{}' with base MIME type: {}",
+                document.getFileName(), baseMimeType);
+
+        if (PDF_MIME_TYPE.equals(baseMimeType)) {
+            return processFile(document, this::parsePdf);
+        } else if (DOCX_MIME_TYPE.equals(baseMimeType)) {
+            return processFile(document, this::parseDocx);
+        } else {
+            log.warn("Unsupported file type: {}", document.getMimeType());
+            return "Error: Unsupported file type. Please send a .pdf or .docx file.";
         }
+    }
+
+    private String getBaseMimeType(String rawMimeType) {
+        if (rawMimeType == null) {
+            return "";
+        }
+        try {
+            return new MimeType(rawMimeType).getBaseType();
+        } catch (MimeTypeParseException e) {
+            log.warn("Could not parse MIME type: '{}'", rawMimeType);
+            return ""; // Якщо тип невалідний, повертаємо порожній рядок
+        }
+    }
+
+    private String processFile(Document document, FileContentParser parser)
+            throws IOException, TelegramApiException {
+        try (InputStream inputStream = fileDownloaderService.downloadFile(document.getFileId())) {
+            return parser.parse(inputStream);
+        }
+    }
+
+    @FunctionalInterface
+    private interface FileContentParser {
+        String parse(InputStream inputStream) throws IOException;
     }
 
     private String parseDocx(InputStream inputStream) throws IOException {

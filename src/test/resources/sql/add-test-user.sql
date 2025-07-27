@@ -1,0 +1,1 @@
+INSERT INTO usr (chat_id, first_name, conversation_state) VALUES (12345, 'Oleh', 'IDLE');
