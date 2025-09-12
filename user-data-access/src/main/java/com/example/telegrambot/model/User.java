@@ -1,5 +1,6 @@
 package com.example.telegrambot.model;
 
+import com.example.dto.ConversationState;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
