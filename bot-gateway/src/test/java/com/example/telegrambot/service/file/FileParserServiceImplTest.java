@@ -1,6 +1,7 @@
 package com.example.telegrambot.service.file;
 
-import com.example.telegrambot.bot.FileDownloaderService;
+import com.example.telegrambot.infra.file.FileParserServiceImpl;
+import com.example.telegrambot.infra.telegram.FileDownloaderService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

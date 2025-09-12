@@ -1,6 +1,6 @@
-package com.example.telegrambot.service.kafka;
+package com.example.telegrambot.infra.kafka;
 
-import com.example.telegrambot.dto.AnalysisTask;
+import com.example.dto.AnalysisTaskDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class KafkaProducerServiceImpl implements KafkaProducerService {
 
-    private final KafkaTemplate<String, AnalysisTask> kafkaTemplate;
+    private final KafkaTemplate<String, AnalysisTaskDto> kafkaTemplate;
     private final String analysisTaskTopic;
 
-    public KafkaProducerServiceImpl(KafkaTemplate<String, AnalysisTask> kafkaTemplate,
+    public KafkaProducerServiceImpl(KafkaTemplate<String, AnalysisTaskDto> kafkaTemplate,
                                     @Value("${app.kafka.topic.analysis-tasks}")
                                     String analysisTaskTopic) {
         this.kafkaTemplate = kafkaTemplate;
@@ -21,7 +21,7 @@ public class KafkaProducerServiceImpl implements KafkaProducerService {
     }
 
     @Override
-    public void sendAnalysisTask(AnalysisTask task) {
+    public void sendAnalysisTask(AnalysisTaskDto task) {
         try {
             kafkaTemplate.send(analysisTaskTopic, task);
             log.info("Sent analysis task to Kafka topic '{}': {}", analysisTaskTopic, task);

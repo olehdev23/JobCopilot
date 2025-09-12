@@ -1,4 +1,4 @@
-package com.example.telegrambot.bot;
+package com.example.telegrambot.infra.telegram;
 
 import java.io.IOException;
 import java.io.InputStream;

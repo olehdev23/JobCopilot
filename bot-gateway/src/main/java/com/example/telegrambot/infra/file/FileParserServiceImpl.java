@@ -1,6 +1,6 @@
-package com.example.telegrambot.service.file;
+package com.example.telegrambot.infra.file;
 
-import com.example.telegrambot.bot.FileDownloaderService;
+import com.example.telegrambot.infra.telegram.FileDownloaderService;
 import jakarta.activation.MimeType;
 import jakarta.activation.MimeTypeParseException;
 import java.io.IOException;
@@ -11,7 +11,6 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -24,7 +23,7 @@ public class FileParserServiceImpl implements FileParserService {
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     private final FileDownloaderService fileDownloaderService;
 
-    public FileParserServiceImpl(@Lazy FileDownloaderService fileDownloaderService) {
+    public FileParserServiceImpl(FileDownloaderService fileDownloaderService) {
         this.fileDownloaderService = fileDownloaderService;
     }
 
@@ -52,7 +51,7 @@ public class FileParserServiceImpl implements FileParserService {
             return new MimeType(rawMimeType).getBaseType();
         } catch (MimeTypeParseException e) {
             log.warn("Could not parse MIME type: '{}'", rawMimeType);
-            return ""; // Якщо тип невалідний, повертаємо порожній рядок
+            return "";
         }
     }
 

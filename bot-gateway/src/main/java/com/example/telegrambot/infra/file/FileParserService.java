@@ -1,4 +1,4 @@
-package com.example.telegrambot.service.file;
+package com.example.telegrambot.infra.file;
 
 import java.io.IOException;
 import org.telegram.telegrambots.meta.api.objects.Document;
