@@ -1,0 +1,20 @@
+package com.example.telegrambot.infra.file;
+
+import java.io.IOException;
+import org.telegram.telegrambots.meta.api.objects.Document;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+/**
+ * A service responsible for parsing files (like CVs) and extracting text content.
+ */
+public interface FileParserService {
+
+    /**
+     * Parses the given Telegram Document and extracts its text content.
+     * It handles different file types like PDF and DOCX.
+     *
+     * @param document The Document object received from Telegram.
+     * @return The extracted text as a String.
+     */
+    String parse(Document document) throws IOException, TelegramApiException;
+}
