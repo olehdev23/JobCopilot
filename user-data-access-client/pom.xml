@@ -16,24 +16,15 @@
     <name>user-data-access-client</name>
     <description>Client library for user-data-access service</description>
 
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-cloud-starter-openfeign.version>4.1.2</spring-cloud-starter-openfeign.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
-            <version>${spring-cloud-starter-openfeign.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.example</groupId>
             <artifactId>common-dto</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

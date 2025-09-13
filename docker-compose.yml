@@ -67,8 +67,7 @@ services:
     depends_on:
       kafka:
         condition: service_started
-#      ollama-service:
-#        condition: service_started
+
       user-data-access:
         condition: service_healthy
     environment:
@@ -96,14 +95,6 @@ services:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
     command: ["java", "-jar", "/app/app.jar"]
-
-#  ollama-service:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile.ollama  # Шлях до нового Dockerfile
-#    container_name: ollama-service
-#    ports:
-#      - "11434:11434"
 
 volumes:
   postgres_data:
